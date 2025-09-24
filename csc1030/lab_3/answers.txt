@@ -1,0 +1,20 @@
+Q1:
+O(n) as it depends on the length of the list passed through it as it iterates through it
+
+Q2:
+this binary search algorithm has O(logn) as each time it iterates it reduces the amount of possible values by half
+
+Q3:
+first loop: o(n) as each iteration does a constant time operation
+second loop: o(n) same as above
+whole programme: o(n) as 2 seperate loops, they are not nested
+
+Q4:
+o(logn) because the loops halfs i in each step
+
+Q5:
+o(n**2) beacuse of the nested loops
+
+Q6:
+o(2**n) as for each iteration it iterates two more times
+
