@@ -1,0 +1,2 @@
+1) exammple.txt
+2) ~/home/emily/year_2/college_year_2/csc1158/example.txt
