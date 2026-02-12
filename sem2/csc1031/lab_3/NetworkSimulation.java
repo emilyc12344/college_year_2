@@ -44,7 +44,7 @@ public class NetworkSimulation {
         }
 
         private void move(double new_x, double new_y) {
-            int disToTower = Math.sqrt(((new_x - this.x)*(new_x - this.x)) + ((new_y - this.y)*(new_y - this.y)));
+            double disToTower = Math.sqrt(Math.pow((new_x - this.x), 2) + (Math.pow((new_y - this.y), 2)));
             if (this.connectedTower.coverageRadius < disToTower) {
                 this.connectedTower = null;
             }
