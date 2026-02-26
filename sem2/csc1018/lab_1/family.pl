@@ -5,6 +5,7 @@ parent(tom, liz).
 parent(bob, ann).
 parent(bob, mary).
 parent(mary, jim).
+parent(ann, sarah).
 
 female(pam).
 female(mary).
@@ -29,4 +30,7 @@ aunt(Aunt, Niece) :-
     sibling(P, Aunt),
     female(Aunt).
 
-cousin()
+cousin(Cousin1, Cousin2) :-
+    parent(P1, Cousin1),
+    parent(P2, Cousin2),
+    sibling(P1, P2).
