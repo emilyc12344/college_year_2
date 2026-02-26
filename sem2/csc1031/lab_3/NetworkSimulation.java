@@ -2,13 +2,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkSimulation {
-    private class CellTower {
-        private int id;
+    public class CellTower {
+        private String id;
         private double x, y;
         private double coverageRadius;
         private String operator;
 
-        private CellTower(int tower_id, double x, double y, double coverage_radius) {
+        public CellTower(String tower_id, double x, double y, double coverage_radius) {
             this.id = tower_id;
             this.x = x;
             this.y = y;
@@ -17,25 +17,25 @@ public class NetworkSimulation {
         }
     }
 
-    private class Operator {
+    public class Operator {
         private String name;
         private List<Integer> clientsPhone;
         private List<CellTower> towers;
 
-        private Operator(String operator_name) {
+        public Operator(String operator_name) {
             this.name = operator_name;
             this.clientsPhone = new ArrayList<>();
             this.towers = new ArrayList<>();
         }
     }
 
-    private class Client {
+    public class Client {
         private int phoneNumber;
         private double x, y;
         private String operatorName;
         private CellTower connectedTower;
 
-        private Client(int phoneNumber, String operatorName, double x, double y) {
+        public Client(int phoneNumber, String operatorName, double x, double y) {
             this.phoneNumber = phoneNumber;
             this.operatorName = operatorName;
             this.x = x;
@@ -59,10 +59,16 @@ public class NetworkSimulation {
         }
     }
 
-    private class Network {
+    public class Network {
         private List<CellTower> towers;
         private List<Client> clients;
         private List<Operator> operators;
+
+        public Network() {
+            this.towers = new ArrayList<>();
+            this.clients = new ArrayList<>();
+            this.operators = new ArrayList<>();
+}
 
         private void MOVE_CLIENT(int phoneNumber, double new_x, double new_y) {
             for (Client currClient : this.clients) {
@@ -80,11 +86,11 @@ public class NetworkSimulation {
             }
         }
 
-        private int TOWER_CLIENT_COUNT(int tower_id) {
+        private int TOWER_CLIENT_COUNT(String tower_id) {
             int total = 0;
             for (Client currClient : this.clients) {
-                if (currClient.connectedTower.id == tower_id) {
-                    total += 1;
+                if (currClient.connectedTower.id.equals(tower_id)) {
+                    total++;
                 }
             }
             return total;
@@ -93,7 +99,7 @@ public class NetworkSimulation {
         private int OPERATOR_SUBSCRIBER_COUNT(String operator_name) {
             int total = 0;
             for (Client currClient : this.clients) {
-                if (currClient.operatorName == operator_name) {
+                if (currClient.operatorName.equals(operator_name)) {
                     total += 1;
                 }
             }
@@ -113,17 +119,17 @@ public class NetworkSimulation {
             }
         }
 
-        private void ADD_TOWER(int tower_id, double x, double y, double coverage_radius) {
+        private void ADD_TOWER(String tower_id, double x, double y, double coverage_radius) {
             CellTower new_tower = new CellTower(tower_id, x, y, coverage_radius);
             this.towers.add(new_tower);
         }
 
-        private void REGISTER_OPERATOR_TOWER(String operator_name, int tower_id) {
+        private void REGISTER_OPERATOR_TOWER(String operator_name, String tower_id) {
             for (CellTower currTower : this.towers) {
-                if (currTower.id == tower_id) {
+                if (currTower.id.equals(tower_id)) {
                     currTower.operator = operator_name;
                     for (Operator currOperator : this.operators) {
-                        if (currOperator.name == operator_name) {
+                        if (currOperator.name.equals(operator_name)) {
                             currOperator.towers.add(currTower);
                         }
                     }
@@ -131,9 +137,9 @@ public class NetworkSimulation {
             }
         }
 
-        private void REMOVE_TOWER(int tower_id) {
+        private void REMOVE_TOWER(String tower_id) {
             for (CellTower currTower : this.towers) {
-                if (currTower.id == tower_id) {
+                if (currTower.id.equals(tower_id)) {
                     this.towers.remove(currTower);
                 }
             }
