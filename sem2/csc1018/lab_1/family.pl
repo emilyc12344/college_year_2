@@ -1,39 +1,32 @@
-/* FACTS */
-parents(david, george, noreen).
-parents(jennifer, george, noreen).
-parents(georgejr, goerge, noreen).
-parents(scott, george, noreen).
-parents(joanne, george, noreen).
-parents(jessica, david, edel).
-parents(clara, david, edel).
-parents(michael, david, edel).
-parents(laura, georgejr, susan).
-parents(anna, scott, siobhan).
+% Facts
+parent(pam, bob).
+parent(tom, bob).
+parent(tom, liz).
+parent(bob, ann).
+parent(bob, mary).
+parent(mary, jim).
 
-/* RELATIONSHIPS */
-father(X, Y) :- parents(Y, X, _).
-male(X) :- father(X, _).
+female(pam).
+female(mary).
+female(liz).
+male(tom).
+male(bob).
+male(jim).
 
-mother(X, Y) :- parents(Y, _, X).
-female(X) :- mother(X, _).
+% Rules
+sibling(Sib1, Sib2) :-
+    parent(P1, Sib1),
+    parent(P1, Sib2),
+    Sib1 \= Sib2.
 
-grandfather(X, Y) :- father(X, Z), father(Z, Y).
-grandfather(X, Y) :- father(X, Z), mother(Z, Y).
+uncle(Uncle, Niece) :- 
+    parent(P, Niece),
+    sibling(P, Uncle),
+    female(Uncle).
 
-grandmother(X, Y) :- mother(X, Z), mother(Z, Y).
-grandmother(X, Y) :- mother(X, Z), father(Z, Y).
+aunt(Aunt, Niece) :- 
+    parent(P, Niece),
+    sibling(P, Aunt),
+    female(Aunt).
 
-brother(X, Y) :- male(X), father(Z, X), father(Z, Y).
-
-sister(X, Y) :- female(X), father(Z, X), father(Z, Y).
-
-uncle(X, Y) :- father(Z, Y), brother(Z, X).
-uncle(X, Y) :- mother(Z, Y), brother(Z, X).
-
-aunt(X, Y) :- father(Z, Y), sister(Z, X).
-aunt(X, Y) :- mother(Z, Y), sister(Z, X).
-
-cousin(X, Y) :- father(Z, X), father(Q, Y), brother(Z, Q).
-cousin(X, Y) :- father(Z, X), mother(Q, Y), brother(Z, Q).
-cousin(X, Y) :- father(Z, X), father(Q, Y), sister(Z, Q).
-cousin(X, Y) :- father(Z, X), mother(Q, Y), sister(Z, Q).
+cousin()
