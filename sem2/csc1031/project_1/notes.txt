@@ -1,0 +1,5 @@
+What to do:
+- UML class design for a software system
+- design structure of the system, do not implement
+- UML class diagram on paper (A4 or A3)
+

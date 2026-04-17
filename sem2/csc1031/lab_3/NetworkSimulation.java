@@ -1,159 +1,251 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class NetworkSimulation {
-    public class CellTower {
-        private String id;
-        private double x, y;
-        private double coverageRadius;
-        private String operator;
+class CellTower {
+    private String id;
+    private double x, y;
+    private double radius;
+    private int connectionCount;
 
-        public CellTower(String tower_id, double x, double y, double coverage_radius) {
-            this.id = tower_id;
-            this.x = x;
-            this.y = y;
-            this.coverageRadius = coverage_radius;
-            this.operator = null;
-        }
+    public CellTower(String id, double x, double y, double radius) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.connectionCount = 0;
     }
 
-    public class Operator {
-        private String name;
-        private List<Integer> clientsPhone;
-        private List<CellTower> towers;
+    public String getId() { return id; }
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getRadius() { return radius; }
+    public int getConnectionCount() { return connectionCount; }
 
-        public Operator(String operator_name) {
-            this.name = operator_name;
-            this.clientsPhone = new ArrayList<>();
-            this.towers = new ArrayList<>();
-        }
-    }
-
-    public class Client {
-        private int phoneNumber;
-        private double x, y;
-        private String operatorName;
-        private CellTower connectedTower;
-
-        public Client(int phoneNumber, String operatorName, double x, double y) {
-            this.phoneNumber = phoneNumber;
-            this.operatorName = operatorName;
-            this.x = x;
-            this.y = y;
-            this.connectedTower = null;
-        }
-
-        private void move(double new_x, double new_y) {
-            double disToTower = Math.sqrt(Math.pow((new_x - this.x), 2) + (Math.pow((new_y - this.y), 2)));
-            if (this.connectedTower.coverageRadius < disToTower) {
-                this.connectedTower = null;
-            }
-            this.x = new_x;
-            this.y = new_y;
-            //  If the phone moves out of the current tower’s range, it should automatically switch to the nearest available tower.
-        }
-
-        private void changeOperator(String new_operator_name) {
-            this.operatorName = new_operator_name;
-            // If the new operator does not support the current tower, the phone should switch to the nearest available tower.
-        }
-    }
-
-    public class Network {
-        private List<CellTower> towers;
-        private List<Client> clients;
-        private List<Operator> operators;
-
-        public Network() {
-            this.towers = new ArrayList<>();
-            this.clients = new ArrayList<>();
-            this.operators = new ArrayList<>();
+    public void incrementConnections() { connectionCount++; }
+    public void decrementConnections() { connectionCount--; }
 }
 
-        private void MOVE_CLIENT(int phoneNumber, double new_x, double new_y) {
-            for (Client currClient : this.clients) {
-                if (currClient.phoneNumber == phoneNumber) {
-                    currClient.move(new_x, new_y);
-                }
-            }
-        }
+class Operator {
+    private String name;
+    private Set<String> towerIds = new HashSet<>();
+    private List<Client> subscribers = new ArrayList<>();
 
-        private void CHANGE_OPERATOR(int phoneNumber, String new_operator_name) {
-            for (Client currClient : this.clients) {
-                if (currClient.phoneNumber == phoneNumber) {
-                    currClient.changeOperator(new_operator_name);
-                }
-            }
-        }
+    public Operator(String name) {
+        this.name = name;
+    }
 
-        private int TOWER_CLIENT_COUNT(String tower_id) {
-            int total = 0;
-            for (Client currClient : this.clients) {
-                if (currClient.connectedTower.id.equals(tower_id)) {
-                    total++;
-                }
-            }
-            return total;
-        }
+    public String getName() { return name; }
+    public Set<String> getTowerIds() { return towerIds; }
+    public List<Client> getSubscribers() { return subscribers; }
 
-        private int OPERATOR_SUBSCRIBER_COUNT(String operator_name) {
-            int total = 0;
-            for (Client currClient : this.clients) {
-                if (currClient.operatorName.equals(operator_name)) {
-                    total += 1;
-                }
-            }
-            return total;
-        }
+    public void addTower(String towerId) { towerIds.add(towerId); }
+    public void addSubscriber(Client client) { subscribers.add(client); }
+    public void removeSubscriber(Client client) { subscribers.remove(client); }
+}
 
-        private void ADD_CLIENT(int phone_number, String operator_name, double x, double y) {
-            Client new_client = new Client(phone_number, operator_name, x, y);
-            this.clients.add(new_client);
-        }
+class Client {
+    private String phoneNumber;
+    private double x, y;
+    private Operator operator;
+    private CellTower connectedTower;
 
-        private void REMOVE_CLIENT(int phone_number) {
-            for (Client currClient : this.clients) {
-                if (currClient.phoneNumber == phone_number) {
-                    this.clients.remove(currClient);
-                }
-            }
-        }
+    public Client(String phoneNumber, Operator operator, double x, double y) {
+        this.phoneNumber = phoneNumber;
+        this.operator = operator;
+        this.x = x;
+        this.y = y;
+    }
 
-        private void ADD_TOWER(String tower_id, double x, double y, double coverage_radius) {
-            CellTower new_tower = new CellTower(tower_id, x, y, coverage_radius);
-            this.towers.add(new_tower);
-        }
+    public String getPhoneNumber() { return phoneNumber; }
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public Operator getOperator() { return operator; }
+    public CellTower getConnectedTower() { return connectedTower; }
 
-        private void REGISTER_OPERATOR_TOWER(String operator_name, String tower_id) {
-            for (CellTower currTower : this.towers) {
-                if (currTower.id.equals(tower_id)) {
-                    currTower.operator = operator_name;
-                    for (Operator currOperator : this.operators) {
-                        if (currOperator.name.equals(operator_name)) {
-                            currOperator.towers.add(currTower);
-                        }
+    public void setLocation(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public void setConnectedTower(CellTower tower) {
+        if (this.connectedTower != null) {
+            this.connectedTower.decrementConnections();
+        }
+        this.connectedTower = tower;
+        if (this.connectedTower != null) {
+            this.connectedTower.incrementConnections();
+        }
+    }
+}
+
+class Network {
+    private Map<String, CellTower> towers = new HashMap<>();
+    private Map<String, Operator> operators = new TreeMap<>();
+    private Map<String, Client> clients = new HashMap<>();
+
+    public void addOperator(String name) {
+        operators.putIfAbsent(name, new Operator(name));
+    }
+
+    public void addTower(String id, double x, double y, double radius) {
+        towers.put(id, new CellTower(id, x, y, radius));
+    }
+
+    public void registerOperatorTower(String opName, String towerId) {
+        Operator op = operators.get(opName);
+        if (op != null && towers.containsKey(towerId)) {
+            op.addTower(towerId);
+            updateAllClients();
+        }
+    }
+
+    public void addClient(String number, String opName, double x, double y) {
+        Operator op = operators.get(opName);
+        if (op != null) {
+            Client client = new Client(number, op, x, y);
+            clients.put(number, client);
+            op.addSubscriber(client);
+            updateClientConnectivity(client);
+        }
+    }
+
+    public void moveClient(String number, double x, double y) {
+        Client client = clients.get(number);
+        if (client != null) {
+            client.setLocation(x, y);
+            updateClientConnectivity(client);
+        }
+    }
+
+    public void changeOperator(String number, String newOpName) {
+        Client client = clients.get(number);
+        Operator newOp = operators.get(newOpName);
+        if (client != null && newOp != null) {
+            client.getOperator().removeSubscriber(client);
+            client.setOperator(newOp);
+            newOp.addSubscriber(client);
+            updateClientConnectivity(client);
+        }
+    }
+
+    public void removeClient(String number) {
+        Client client = clients.remove(number);
+        if (client != null) {
+            client.setConnectedTower(null);
+            client.getOperator().removeSubscriber(client);
+        }
+    }
+
+    public void removeTower(String id) {
+        towers.remove(id);
+        for (Operator op : operators.values()) {
+            op.getTowerIds().remove(id);
+        }
+        updateAllClients();
+    }
+
+    private void updateAllClients() {
+        for (Client client : clients.values()) {
+            updateClientConnectivity(client);
+        }
+    }
+
+    private void updateClientConnectivity(Client client) {
+        CellTower bestTower = null;
+        double minDistance = Double.MAX_VALUE;
+
+        Set<String> allowedTowers = client.getOperator().getTowerIds();
+
+        for (String towerId : allowedTowers) {
+            CellTower tower = towers.get(towerId);
+            if (tower == null) continue;
+
+            double dist = Math.sqrt(Math.pow(client.getX() - tower.getX(), 2) + 
+                                    Math.pow(client.getY() - tower.getY(), 2));
+
+            if (dist <= tower.getRadius()) {
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    bestTower = tower;
+                } else if (Math.abs(dist - minDistance) < 1e-9) {
+                    if (bestTower == null || tower.getConnectionCount() < bestTower.getConnectionCount()) {
+                        bestTower = tower;
                     }
                 }
             }
         }
+        client.setConnectedTower(bestTower);
+    }
 
-        private void REMOVE_TOWER(String tower_id) {
-            for (CellTower currTower : this.towers) {
-                if (currTower.id.equals(tower_id)) {
-                    this.towers.remove(currTower);
+    public int getTowerClientCount(String id) {
+        CellTower tower = towers.get(id);
+        return (tower != null) ? tower.getConnectionCount() : 0;
+    }
+
+    public int getOperatorSubscriberCount(String name) {
+        Operator op = operators.get(name);
+        return (op != null) ? op.getSubscribers().size() : 0;
+    }
+
+    public void printNoSignalCount() {
+        for (Operator op : operators.values()) {
+            int count = 0;
+            for (Client c : op.getSubscribers()) {
+                if (c.getConnectedTower() == null) {
+                    count++;
                 }
             }
+            System.out.println(op.getName() + ": " + count + " phones without signal.");
         }
+    }
+}
 
-        private int NO_SIGNAL_COUNT() {
-            int total = 0;
-            return total;
-            // Returns the number of phones currently out of signal range for each operator.
-        }
+public class NetworkSimulation {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Network network = new Network();
 
-        private void ADD_OPERATOR(String operator_name) {
-            Operator new_operator = new Operator(operator_name);
-            this.operators.add(new_operator);
+        while (sc.hasNext()) {
+            String command = sc.next();
+            switch (command) {
+                case "ADD_OPERATOR":
+                    network.addOperator(sc.next());
+                    break;
+                case "ADD_TOWER":
+                    network.addTower(sc.next(), sc.nextDouble(), sc.nextDouble(), sc.nextDouble());
+                    break;
+                case "REGISTER_OPERATOR_TOWER":
+                    network.registerOperatorTower(sc.next(), sc.next());
+                    break;
+                case "ADD_CLIENT":
+                    network.addClient(sc.next(), sc.next(), sc.nextDouble(), sc.nextDouble());
+                    break;
+                case "MOVE_CLIENT":
+                    network.moveClient(sc.next(), sc.nextDouble(), sc.nextDouble());
+                    break;
+                case "CHANGE_OPERATOR":
+                    network.changeOperator(sc.next(), sc.next());
+                    break;
+                case "REMOVE_CLIENT":
+                    network.removeClient(sc.next());
+                    break;
+                case "REMOVE_TOWER":
+                    network.removeTower(sc.next());
+                    break;
+                case "TOWER_CLIENT_COUNT":
+                    System.out.println(network.getTowerClientCount(sc.next()));
+                    break;
+                case "OPERATOR_SUBSCRIBER_COUNT":
+                    System.out.println(network.getOperatorSubscriberCount(sc.next()));
+                    break;
+                case "NO_SIGNAL_COUNT":
+                    network.printNoSignalCount();
+                    break;
+            }
         }
+        sc.close();
     }
 }
